@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Team A",
+    "points": 0,
+    "players": [
+      {
+        "name": "Connor",
+        "hand": [],
+        "played": [],
+        "won": [],
+        "bid": null
+      }
+    ]
+  }, {
+    "name": "Team B",
+    "points": 0,
+    "players": [
+      {
+        "name": "Andy",
+        "hand": [],
+        "played": [],
+        "won": [],
+        "bid": null
+      }
+    ]
+  }
+]

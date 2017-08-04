@@ -2,38 +2,12 @@ const prompt = require('prompt');
 const console = require('better-console');
 const deck = require('./deck.json')
 
+const dummyTeams = require('./dummy-teams.json')
+
 prompt.start()
 
 let trick = null;
 let round = null;
-
-const dummyTeams = [
-  {
-    name: 'Team A',
-    points: 0,
-    players: [
-      {
-        name: 'Connor',
-        hand: [],
-        played: [],
-        won: [],
-        bid: null
-      }
-    ]
-  }, {
-    name: 'Team B',
-    points: 0,
-    players: [
-      {
-        name: 'Andy',
-        hand: [],
-        played: [],
-        won: [],
-        bid: null
-      }
-    ]
-  }
-];
 
 class Match {
   constructor() {
