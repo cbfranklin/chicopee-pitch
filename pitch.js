@@ -44,20 +44,25 @@ class Round extends Match {
   }
   start() {
     console.log('round start')
-    this.deal();
+    this.teams = this.teams.map(team => {
+      team.players = team.players.map(player => {
+        player.hand = round.dealHand()
+        return player
+      })
+      return team
+    })
+    round.bid()
   }
-  deal() {
-    for (let team of this.teams) {
-      for (const player of team.players) {
-        let hand = this.deck.splice(0, 7);
-        this.deck = this.deck.slice(0, 7);
-        player.hand = hand;
-        // console.log(player)
-      }
+  dealHand() {
+    if (this.deck.length < 6) {
+      throw new Error('not enough cards left to deal')
+    } else {
+      let hand = this.deck.slice(0, 6);
+      // would be cool to get rid of the side-effect of eliminating the cards from the deck
+      // but how...
+      this.deck = this.deck.slice(6, this.deck.length);
+      return hand
     }
-    match.playerOrder = [this.teams[0].players[0], this.teams[1].players[0]];
-     //console.log(match.playerOrder)
-     this.bid();
   }
   bid() {
     const players = match.playerOrder;
