@@ -12,6 +12,7 @@ let round = null;
 class Match {
   constructor() {
     this.teams = dummyTeams;
+    this.playerOrder = this.setPlayerOrder(dummyTeams);
   }
   start() {
     console.log('match start');
@@ -19,12 +20,19 @@ class Match {
     round.start();
   }
   nextRound() {
-    if (matchOver) {
-      console.log(`${matchOver.name} WINS!`)
+    if (matchOver(this.teams)) {
+      let matchWinner = determineMatchWinner(this.teams)
+      console.log(`${matchWinner.name} WINS!`)
     } else {
       let round = new Round();
       round.start();
     }
+  }
+  setPlayerOrder(teams) {
+    if (teams[0].players.length > 1 || teams[1].players.length > 1) {
+      return [teams[0].players[0], teams[1].players[0], teams[0].players[1], teams[1].players[1]]
+    }
+    return [teams[0].players[0], teams[1].players[0]]
   }
 }
 
@@ -37,20 +45,25 @@ class Round extends Match {
   }
   start() {
     console.log('round start')
-    this.deal();
+    this.teams = this.teams.map(team => {
+      team.players = team.players.map(player => {
+        player.hand = round.dealHand()
+        return player
+      })
+      return team
+    })
+    round.bid()
   }
-  deal() {
-    for (let team of this.teams) {
-      for (const player of team.players) {
-        let hand = this.deck.splice(0, 7);
-        this.deck = this.deck.slice(0, 7);
-        player.hand = hand;
-        // console.log(player)
-      }
+  dealHand() {
+    if (this.deck.length < 6) {
+      throw new Error('not enough cards left to deal')
+    } else {
+      let hand = this.deck.slice(0, 6);
+      // would be cool to get rid of the side-effect of eliminating the cards from the deck
+      // but how...
+      this.deck = this.deck.slice(6, this.deck.length);
+      return hand
     }
-    match.playerOrder = [this.teams[0].players[0], this.teams[1].players[0]];
-     //console.log(match.playerOrder)
-     this.bid();
   }
   bid() {
     const players = match.playerOrder;
@@ -204,7 +217,11 @@ const suitUnicode = (letter) => {
     D: '♦',
     C: '♣'
   }
-  return unicode[letter]
+  if (Object.keys(unicode).indexOf(letter) < 0) {
+    throw new Error('invalid suit passed to suitUnicode, must be either S, H, D, or C')
+  } else {
+    return unicode[letter]
+  }
 }
 
 const cardValue = (value) => {
@@ -244,26 +261,27 @@ const showScore = (match) => {
   console.table(score);
 }
 
-const matchOver = (match) => {
-  let winningPosition = false;
-  let teams = match.teams;
+const matchOver = (teams) => {
+  let matchOver = false
   for (team of teams) {
     if (team.score >= 11) {
-      winningPosition = true
+      matchOver = true
     }
   }
-  if (winningPosition === true) {
-    if (abs(teams[0].score - teams[1].score) >= 2) {
-      let highestScore = Math.max.apply(Math, teams.map(function(team) {
-        return team.score;
-      }))
-      let winningTeam = teams.filter(function(team) {
-        return parseFloat(team.score) === highestScore
-      });
-      return winningTeam;
-    }
+  return matchOver
+}
+
+const determineMatchWinner = (teams) => {
+  if (Math.abs(teams[0].score - teams[1].score) >= 2) {
+    let highestScore = Math.max.apply(Math, teams.map(function(team) {
+      return team.score;
+    }))
+    let winningTeam = teams.filter(function(team) {
+      return parseFloat(team.score) === highestScore
+    });
+    return winningTeam[0];
   } else {
-    return false;
+    throw new Error('determineMatchWinner: neither team has a 2-point or higher lead')
   }
 }
 
@@ -321,4 +339,13 @@ const determineHigh = () => {}
 const countForGame = () => {}
 
 let match = new Match();
+// comment out match.start() for testing
 match.start();
+
+module.exports = {
+  Match: Match,
+  Round: Round,
+  suitUnicode: suitUnicode,
+  matchOver: matchOver,
+  determineMatchWinner: determineMatchWinner
+}
