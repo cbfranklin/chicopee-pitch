@@ -20,8 +20,9 @@ class Match {
     round.start();
   }
   nextRound() {
-    if (matchOver) {
-      console.log(`${matchOver.name} WINS!`)
+    if (matchOver(this.teams)) {
+      let matchWinner = determineMatchWinner(this.teams)
+      console.log(`${matchWinner.name} WINS!`)
     } else {
       let round = new Round();
       round.start();
@@ -260,26 +261,27 @@ const showScore = (match) => {
   console.table(score);
 }
 
-const matchOver = (match) => {
-  let winningPosition = false;
-  let teams = match.teams;
+const matchOver = (teams) => {
+  let matchOver = false
   for (team of teams) {
     if (team.score >= 11) {
-      winningPosition = true
+      matchOver = true
     }
   }
-  if (winningPosition === true) {
-    if (abs(teams[0].score - teams[1].score) >= 2) {
-      let highestScore = Math.max.apply(Math, teams.map(function(team) {
-        return team.score;
-      }))
-      let winningTeam = teams.filter(function(team) {
-        return parseFloat(team.score) === highestScore
-      });
-      return winningTeam;
-    }
+  return matchOver
+}
+
+const determineMatchWinner = (teams) => {
+  if (Math.abs(teams[0].score - teams[1].score) >= 2) {
+    let highestScore = Math.max.apply(Math, teams.map(function(team) {
+      return team.score;
+    }))
+    let winningTeam = teams.filter(function(team) {
+      return parseFloat(team.score) === highestScore
+    });
+    return winningTeam[0];
   } else {
-    return false;
+    throw new Error('determineMatchWinner: neither team has a 2-point or higher lead')
   }
 }
 
@@ -343,5 +345,7 @@ match.start();
 module.exports = {
   Match: Match,
   Round: Round,
-  suitUnicode: suitUnicode
+  suitUnicode: suitUnicode,
+  matchOver: matchOver,
+  determineMatchWinner: determineMatchWinner
 }
