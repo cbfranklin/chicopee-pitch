@@ -337,4 +337,11 @@ const determineHigh = () => {}
 const countForGame = () => {}
 
 let match = new Match();
+// comment out match.start() for testing
 match.start();
+
+module.exports = {
+  Match: Match,
+  Round: Round,
+  suitUnicode: suitUnicode
+}
