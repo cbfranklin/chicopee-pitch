@@ -216,7 +216,11 @@ const suitUnicode = (letter) => {
     D: '♦',
     C: '♣'
   }
-  return unicode[letter]
+  if (Object.keys(unicode).indexOf(letter) < 0) {
+    throw new Error('invalid suit passed to suitUnicode, must be either S, H, D, or C')
+  } else {
+    return unicode[letter]
+  }
 }
 
 const cardValue = (value) => {
