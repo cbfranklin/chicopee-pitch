@@ -8,6 +8,8 @@ const _ = require('lodash')
 const Match = Game.Match
 const Round = Game.Round
 const suitUnicode = Game.suitUnicode
+const matchOver = Game.matchOver
+const determineMatchWinner = Game.determineMatchWinner
 
 describe('spec', () => {
   describe('class Match', () => {
@@ -129,10 +131,11 @@ describe('spec', () => {
         for (let i = 0; i < 8; i++) {
           testRound.dealHand()
         }
-        function dealFromDeckWithTooFewCards(){
+        function throwError(){
           testRound.dealHand()
         }
-        assert.throws(dealFromDeckWithTooFewCards, Error, 'not enough cards left to deal')
+        let expectedError = 'not enough cards left to deal'
+        assert.throws(throwError, Error, expectedError)
       })
     })
   })
@@ -163,6 +166,79 @@ describe('spec', () => {
       }
       let expectedError = 'invalid suit passed to suitUnicode, must be either S, H, D, or C'
       assert.throws(throwError, Error, expectedError)
+    })
+  })
+
+  describe('matchOver', () => {
+    it('should exist', () => {
+      let actual = typeof matchOver
+      let expected = 'function'
+      assert.equal(actual, expected)
+    })
+    it('should return true if a team\s score is >= 11', () => {
+      let testTeamsOne = [
+        {score: 10},
+        {score: 11}
+      ]
+      let testTeamsTwo = [
+        {score: 3},
+        {score: 7}
+      ]
+      let actual = matchOver(testTeamsOne)
+      let expected = true
+      assert.equal(actual, expected)
+
+      actual = matchOver(testTeamsTwo)
+      expected = false
+      assert.equal(actual, expected)
+    })
+    it('should return false if a team\s score is < 11', () => {
+      let testTeams = [
+        {score: 10},
+        {score: 10}
+      ]
+      let actual = matchOver(testTeams)
+      let expected = false
+      assert.equal(actual, expected)
+    })
+  })
+
+  describe('determineMatchWinner', () => {
+    it('should exist', () => {
+      let actual = typeof determineMatchWinner
+      let expected = 'function'
+      assert.equal(actual, expected)
+    })
+    it('should return a winning team if that team leads by >= 2 points', () => {
+      let testTeamsOne = [
+        {score: 2, name: 'team1'},
+        {score: 0, name: 'team2'}
+      ]
+      let testTeamsTwo = [
+        {score: 3, name: 'team1'},
+        {score: 0, name: 'team2'}
+      ]
+
+      let matchWinner = determineMatchWinner(testTeamsOne)
+      let actual = matchWinner.name
+      let expected = 'team1'
+      assert.equal(actual, expected)
+
+      matchWinner = determineMatchWinner(testTeamsTwo)
+      actual = matchWinner.name
+      expected = 'team1'
+      assert.equal(actual, expected)
+    })
+    it('should throw an error if neither team leads by >= 2 points', () => {
+      let testTeams = [
+        {score: 1},
+        {score: 2}
+      ]
+      function throwsError() {
+        determineMatchWinner(testTeams)
+      }
+      let expectedError = 'determineMatchWinner: neither team has a 2-point or higher lead'
+      assert.throws(throwsError, Error, expectedError)
     })
   })
 })
