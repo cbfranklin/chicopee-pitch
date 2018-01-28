@@ -12,6 +12,7 @@ let round = null;
 class Match {
   constructor() {
     this.teams = dummyTeams;
+    this.playerOrder = this.setPlayerOrder(dummyTeams);
   }
   start() {
     console.log('match start');
@@ -25,6 +26,12 @@ class Match {
       let round = new Round();
       round.start();
     }
+  }
+  setPlayerOrder(teams) {
+    if (teams[0].players.length > 1 || teams[1].players.length > 1) {
+      return [teams[0].players[0], teams[1].players[0], teams[0].players[1], teams[1].players[1]]
+    }
+    return [teams[0].players[0], teams[1].players[0]]
   }
 }
 
