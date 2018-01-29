@@ -46,6 +46,15 @@ const cardValue = (value) => {
   }
 }
 
+const findIndexOfObjByParam = (array, param, value) => {
+  for (var i = 0; i < array.length; i += 1) {
+    if (array[i][param] === value) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 // exports = {
 //   showHand: showHand
 // }
@@ -53,3 +62,4 @@ const cardValue = (value) => {
 exports.showHand = showHand;
 exports.suitUnicode = suitUnicode;
 exports.cardValue = cardValue;
+exports.findIndexOfObjByParam = findIndexOfObjByParam;

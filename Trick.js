@@ -1,4 +1,6 @@
-const { showHand,suitUnicode,cardValue } = require('./globals');
+const { showHand,suitUnicode,cardValue,findIndexOfObjByParam } = require('./globals');
+
+// const { Round } = require('./Round')
 
 const prompt = require('prompt');
 
@@ -36,7 +38,13 @@ class Trick{
         this.turn(index)
       })
     } else {
-      this.determineTrickWinner()
+      // determine winner
+      const winner = this.determineTrickWinner();
+      const winnerIndex = findIndexOfObjByParam(this.playerOrder, 'name', winner);
+      //console.log(winnerIndex)
+      console.log(match.round.playerOrder[winnerIndex].won.push(this.cardsPlayed))
+      console.log(match.round.playerOrder[winnerIndex].won)
+      //match.round.teams
     }
   }
   playCard(player, value, suit){
@@ -77,6 +85,7 @@ class Trick{
     //if trumps was not lead, determine if trick was trumped
     if(lead.suit !== trumps){
       let trumped = false;
+      console.log(this.cardsPlayed)
       for(card of this.cardsPlayed){
         if(card.suit === trumps){
           trumped = true;

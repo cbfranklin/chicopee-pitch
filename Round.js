@@ -3,7 +3,7 @@ const console = require('better-console');
 
 const { Trick } =  require('./Trick')
 
-const { showHand,suitUnicode } = require('./globals');
+const { showHand,suitUnicode,findIndexOfObjByParam } = require('./globals');
 
 class Round {
   constructor(teams,deck) {
@@ -102,16 +102,8 @@ class Round {
       trick.start()
     })
   }
+  determineLow(){}
+  determineHigh(){}
+  countForGame(){}
 }
 exports.Round = Round;
-
-
-
-const findIndexOfObjByParam = (array, param, value) => {
-  for (var i = 0; i < array.length; i += 1) {
-    if (array[i][param] === value) {
-      return i;
-    }
-  }
-  return -1;
-}

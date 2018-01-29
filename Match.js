@@ -21,5 +21,33 @@ class Match {
       round.start();
     }
   }
+  showScore(){
+    let score = this.teams.map(function(team) {
+
+    })
+    console.table(score);
+  }
+  end(){
+    let winningPosition = false;
+    let teams = this.teams;
+    for (team of teams) {
+      if (team.score >= 11) {
+        winningPosition = true
+      }
+    }
+    if (winningPosition === true) {
+      if (abs(teams[0].score - teams[1].score) >= 2) {
+        let highestScore = Math.max.apply(Math, teams.map(function(team) {
+          return team.score;
+        }))
+        let winningTeam = teams.filter(function(team) {
+          return parseFloat(team.score) === highestScore
+        });
+        return winningTeam;
+      }
+    } else {
+      return false;
+    }
+  }
 }
 exports.Match = Match;
