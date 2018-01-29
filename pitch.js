@@ -1,139 +1,10 @@
+const { Match } = require('./Match');
+
 const prompt = require('prompt');
-const console = require('better-console');
-const deck = require('./deck.json')
-
-const dummyTeams = require('./dummy-teams.json')
-
-prompt.start()
+prompt.start();
 
 let trick = null;
 let round = null;
-
-class Match {
-  constructor() {
-    this.teams = dummyTeams;
-  }
-  start() {
-    console.log('match start');
-    round = new Round();
-    round.start();
-  }
-  nextRound() {
-    if (matchOver) {
-      console.log(`${matchOver.name} WINS!`)
-    } else {
-      let round = new Round();
-      round.start();
-    }
-  }
-}
-
-class Round extends Match {
-  constructor(teams) {
-    super(teams);
-    this.deck = shuffle(deck);
-    this.tricks = [];
-    this.playerOrder = null;
-  }
-  start() {
-    console.log('round start')
-    this.deal();
-  }
-  deal() {
-    for (let team of this.teams) {
-      for (const player of team.players) {
-        let hand = this.deck.splice(0, 7);
-        this.deck = this.deck.slice(0, 7);
-        player.hand = hand;
-        // console.log(player)
-      }
-    }
-    match.playerOrder = [this.teams[0].players[0], this.teams[1].players[0]];
-     //console.log(match.playerOrder)
-     this.bid();
-  }
-  bid() {
-    const players = match.playerOrder;
-    // console.log(match,match.playerOrder)
-    let bids = [];
-    // console.log(players)
-    turn(0);
-    function turn(index) {
-      if (index < players.length) {
-        const player = players[index];
-        showHand(player);
-        prompt.get(['bid'], (err, result) => {
-          let bid = result.bid;
-          if (bid.toUpperCase() === 'P') {
-            bid = 0;
-          }
-          for (let existingBid of bids) {
-            if (existingBid.bid > bid && bid != 0) {
-              bid = false;
-            }
-          }
-          if (bid === false) {
-            console.log(`INVALID BID. BID HIGHER, OR PASS`);
-          } else {
-            bids.push({player: player.name, bid: bid});
-            console.table(bids);
-            index++;
-          }
-          turn(index);
-        })
-      } else {
-        let highestBid = Math.max.apply(Math, bids.map(function(bid) {
-          return bid.bid;
-        }))
-        let winningBid = bids.filter(function(bid) {
-          return parseFloat(bid.bid) === highestBid
-        });
-        winningBid = winningBid[0];
-        setDealer(winningBid.player);
-      }
-    }
-  }
-}
-
-class Trick extends Round {
-  constructor(){
-    super();
-    this.cardsPlayed = [];
-    this.trumps = null;
-  }
-  start() {
-    this.cardsPlayed = [];
-    console.log('trick start')
-    if (this.tricks.length > 7) {
-      return true;
-    }
-    console.log(`Trick #${this.tricks.length + 1}:`)
-    const players = match.playerOrder;
-    //console.log(players)
-    turn(0);
-    function turn(index) {
-      if (index < players.length) {
-        const player = players[index];
-        showHand(player);
-        prompt.get([
-          'value', 'suit'
-        ], (err, result) => {
-          if (playCard(player, result.value.toUpperCase(), result.suit.toUpperCase())) {
-            index++;
-            console.table(showTrickStatus(match))
-          } else {
-            console.log(`YOU DONT HAVE THAT CARD`)
-          }
-          turn(index)
-        })
-      } else {
-        determineTrickWinner(trick.cardsPlayed, trick.trumps)
-      }
-    }
-  }
-}
-
-const shuffle = (deck) => deck.sort(() => (Math.random() - 0.5));
 
 const showHand = (player) => {
   console.log(`${player.name}'s Turn:`);
@@ -147,65 +18,15 @@ const showTrickStatus = (match) => {
   }))
 }
 
-const playCard = (player, value, suit) => {
-  const hand = player.hand;
-  let i;
-  let cardToBePlayed = false;
-  for (i = hand.length - 1; i >= 0; i -= 1) {
-    const card = hand[i];
-    if (card.value === value && card.suit === suit) {
-      cardToBePlayed = card;
-      // console.log(`Playing the ${cardToBePlayed.text}`)
-      cardToBePlayed.playedBy = player.name;
-      trick.cardsPlayed.push(cardToBePlayed);
-      hand.splice(i, 1);
-      break;
-    }
-  }
-  return cardToBePlayed;
-}
 
-const findIndexOfObjByParam = (array, param, value) => {
-  for (var i = 0; i < array.length; i += 1) {
-    if (array[i][param] === value) {
-      return i;
-    }
-  }
-  return -1;
-}
 
-const setDealer = (playerName) => {
 
-  const reorder = (data, index) => {
-    return data.slice(index).concat(data.slice(0, index))
-  };
-  console.log(`${playerName} leads!`)
-  match.playerOrder = reorder(match.playerOrder, findIndexOfObjByParam(match.playerOrder, 'name', playerName));
-  chooseTrumps(match.playerOrder[0])
-}
 
-const chooseTrumps = (player) => {
-  showHand(player)
-  console.log(`What is trumps?`)
-  prompt.get(['suit'], (err, result) => {
-    let trumps = result.suit.toUpperCase()
-    console.log(`${suitUnicode(trumps)} is trumps!`);
-    trick = new Trick();
-    trick.trumps = trumps;
-    trick.start()
-  })
-}
 
-const suitUnicode = (letter) => {
-  letter = letter.toUpperCase();
-  const unicode = {
-    S: '♠',
-    H: '♥',
-    D: '♦',
-    C: '♣'
-  }
-  return unicode[letter]
-}
+
+
+
+
 
 const cardValue = (value) => {
   // console.log('cardValue',value)
