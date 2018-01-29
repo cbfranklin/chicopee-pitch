@@ -1,16 +1,17 @@
 const prompt = require('prompt');
 const console = require('better-console');
 
-const { Trick } =  require('./Trick')
+// const { Trick } =  require('./Trick')
 
-const { showHand,suitUnicode,findIndexOfObjByParam } = require('./globals');
+const { showHand,suitUnicode,findIndexOfObjByParam,cardValue,reorder } = require('./globals');
 
 class Round {
   constructor(teams,deck) {
     this.deck = this.shuffle(deck);
-    this.tricks = [];
+    this.tricks = 0;
     this.playerOrder = null;
     this.teams = teams;
+    this.trumps = null
   }
   start() {
     console.log('round start')
@@ -82,12 +83,10 @@ class Round {
     }
   }
   setDealer(playerName){
-    const reorder = (data, index) => {
-      return data.slice(index).concat(data.slice(0, index))
-    };
     console.log(`${playerName} leads!`)
     console.log('teams',this.teams);
     console.log("playerOrder", this.playerOrder)
+    // should reorder players, allowing winning player to lead next trick
     this.playerOrder = reorder(this.playerOrder, findIndexOfObjByParam(this.playerOrder, 'name', playerName));
     this.chooseTrumps(this.playerOrder[0])
   }
@@ -97,13 +96,144 @@ class Round {
     prompt.get(['suit'], (err, result) => {
       let trumps = result.suit.toUpperCase()
       console.log(`${suitUnicode(trumps)} is trumps!`);
-      let trick = new Trick(this.playerOrder);
-      trick.trumps = trumps;
-      trick.start()
+      this.tricks += 1;
+      this.trumps = trumps;
+      this.trick = new Trick(this.playerOrder, this.tricks, this.trumps);
+      this.trick.start()
     })
+  }
+  nextTrick(){
+    this.tricks += 1;
+    this.trick = new Trick(this.playerOrder, this.tricks, this.trumps);
+    this.trick.start();
   }
   determineLow(){}
   determineHigh(){}
   countForGame(){}
 }
+
+class Trick{
+  constructor(playerOrder,tricks,trumps){
+    this.cardsPlayed = [];
+    this.trumps = trumps;
+    this.tricks = tricks;
+    this.playerOrder = playerOrder;
+  }
+  start() {
+    console.log(`Trick #${this.tricks}:`)
+    console.log(this.trumps,'is trumps')
+    const players = this.playerOrder;
+    //console.log(players)
+    this.turn(0);
+  }
+  turn(index){
+    if (index < this.playerOrder.length) {
+      const player = this.playerOrder[index];
+      showHand(player);
+      prompt.get([
+        'value', 'suit'
+      ], (err, result) => {
+        if (this.playCard(player, result.value.toUpperCase(), result.suit.toUpperCase())) {
+          index++;
+          console.table(this.showStatus())
+        } else {
+          console.log(`YOU DONT HAVE THAT CARD`)
+        }
+        this.turn(index)
+      })
+    } else {
+      // determine winner
+      const winner = this.determineTrickWinner();
+      // should reorder
+      this.playerOrder = reorder(this.playerOrder, findIndexOfObjByParam(this.playerOrder, 'name', winner));
+      const winnerIndex = findIndexOfObjByParam(this.playerOrder, 'name', winner);
+      //console.log(winnerIndex)
+      match.round.playerOrder[winnerIndex].won.push(this.cardsPlayed);
+      if(this.tricks < 7){
+        match.round.nextTrick();
+      }
+      else{
+        console.log('END OF ROUND!!!')
+      }
+
+    }
+  }
+  playCard(player, value, suit){
+    const hand = player.hand;
+    let i;
+    let cardToBePlayed = false;
+    for (i = hand.length - 1; i >= 0; i -= 1) {
+      const card = hand[i];
+      if (card.value === value && card.suit === suit) {
+        cardToBePlayed = card;
+        // console.log(`Playing the ${cardToBePlayed.text}`)
+        cardToBePlayed.playedBy = player.name;
+        this.cardsPlayed.push(cardToBePlayed);
+        hand.splice(i, 1);
+        break;
+      }
+    }
+    return cardToBePlayed;
+  }
+  showStatus(){
+    console.log(`Current Trick:`)
+    console.table(this.cardsPlayed.map(function(card) {
+      return {card: card.unicode, 'played by': card.playedBy}
+    }))
+  }
+
+  determineTrickWinner(){
+    console.log('Determining trick winner...')
+    const trumps = this.trumps;
+    const lead = this.cardsPlayed[0];
+    // the suit of the card lead is boss, even if not trumps,
+    // until someone trumps the trick
+    let suitLead = lead.suit;
+    console.log('trumps',trumps)
+    console.log('suitLead',suitLead)
+    console.log(`${suitUnicode(trumps)} is trumps...`)
+    console.log(`${lead.unicode} was lead...`)
+
+    let trumped = null;
+    //if trumps was not lead, determine if trick was trumped
+    if(lead.suit !== trumps){
+      let trumped = false;
+      console.log(this.cardsPlayed)
+      for(let card of this.cardsPlayed){
+        if(card.suit === trumps){
+          trumped = true;
+          break;
+        }
+      }
+    }
+    else{
+      trumped = true;
+    }
+    let trickFiltered = null;
+    if(trumped){
+      // filter for trump cards only
+      trickFiltered = this.cardsPlayed.filter(function(card){
+        return card.suit = trumps
+      })
+    }
+    else{
+      //filter for cards of lead suit only
+      trickFiltered = this.cardsPlayed.filter(function(card){
+        return card.suit = lead.suit
+      })
+    }
+    let highestCard = Math.max.apply(Math, trickFiltered.map(function(card) {
+      let value = cardValue(card.value);
+      return value;
+    }))
+    let winningCard = trickFiltered.filter(function(card) {
+      return parseFloat(cardValue(card.value)) === highestCard
+    });
+    // console.log(`Winning Card: ${winningCard.unicode}`);
+    let winningPlayer = winningCard[0].playedBy;
+    console.log(`${winningPlayer} takes the trick!`)
+    return winningPlayer;
+  }
+}
+
 exports.Round = Round;

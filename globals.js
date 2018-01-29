@@ -54,6 +54,9 @@ const findIndexOfObjByParam = (array, param, value) => {
   }
   return -1;
 }
+const reorder = (data, index) => {
+  return data.slice(index).concat(data.slice(0, index))
+};
 
 // exports = {
 //   showHand: showHand
@@ -63,3 +66,4 @@ exports.showHand = showHand;
 exports.suitUnicode = suitUnicode;
 exports.cardValue = cardValue;
 exports.findIndexOfObjByParam = findIndexOfObjByParam;
+exports.reorder = reorder;
