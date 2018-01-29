@@ -126,22 +126,33 @@ class Round {
     });
 
     const determineLow = (allTrumpsPlayed) => {
-      let hash = [];
-      for(let card in allTrumpsPlayed){
-        
-      }
+      // cant do that vvv
+      // Math.max[...allTrumpsPlayed.value]
     }
     const determineHigh = (allTrumpsPlayed) => {
 
     }
     // determine if jack was dealt
-    const isJackOut = (allTrumpsPlayed) => {
-      for(let card in allTrumpsPlayed){
-        if(this.value === 'J'){
-          return true;
-          break;
+    const findJack = () => {
+      // for(let card in allTrumpsPlayed){
+      //   if(this.value === 'J'){
+      //     return true;
+      //     break;
+      //   }
+      // }
+      // return false;
+      for(let team of this.teams){
+        for(let player of team.players){
+          if(player.won.find(card => card.value = 'J')){
+            team.points.push({
+              point: 'Jack'
+            })
+            return true;
+            break;
+          }
         }
       }
+      console.log('NO JACK OUT!');
       return false;
     }
 
@@ -156,7 +167,9 @@ class Round {
         }
       }
 
-      console.log(this.teams)
+      this.teams.sort(function(a,b){
+        a.pointsOfGame > b.pointsOfGame;
+      })
 
     }
     const roundScore = () => {}
@@ -196,8 +209,11 @@ class Trick{
       // determine winner
       const winner = this.determineTrickWinner();
       // should reorder
-      this.playerOrder = reorder(this.playerOrder, findIndexOfObjByParam(this.playerOrder, 'name', winner));
-      const winnerIndex = findIndexOfObjByParam(this.playerOrder, 'name', winner);
+
+      // const winnerIndex = findIndexOfObjByParam(this.playerOrder, 'name', winner);
+      const winnerIndex = this.playerOrder.findIndex(player => player.name === winner) // 2
+      this.playerOrder = reorder(this.playerOrder, winnerIndex);
+
       //console.log(winnerIndex)
       match.round.playerOrder[winnerIndex].won.push(this.cardsPlayed);
       if(this.tricks < 7){
