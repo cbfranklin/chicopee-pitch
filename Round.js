@@ -107,9 +107,60 @@ class Round {
     this.trick = new Trick(this.playerOrder, this.tricks, this.trumps);
     this.trick.start();
   }
-  determineLow(){}
-  determineHigh(){}
-  countForGame(){}
+  determineRoundWinner(){
+    // define trumps locally
+    const trumps = this.trumps;
+    // all cards played
+    const allCardsPlayed = () => {
+      let cards = [];
+      for(let team of this.teams){
+        for(let player of team.players){
+          cards = cards.concat(player.won)
+        }
+      }
+      return cards;
+    }
+    // all trumps played
+    const allTrumpsPlayed = allCardsPlayed().filter(function(card){
+      return card.suit = trumps;
+    });
+
+    const determineLow = (allTrumpsPlayed) => {
+      let hash = [];
+      for(let card in allTrumpsPlayed){
+        
+      }
+    }
+    const determineHigh = (allTrumpsPlayed) => {
+
+    }
+    // determine if jack was dealt
+    const isJackOut = (allTrumpsPlayed) => {
+      for(let card in allTrumpsPlayed){
+        if(this.value === 'J'){
+          return true;
+          break;
+        }
+      }
+      return false;
+    }
+
+    const countForGame = () => {
+
+      for(let team of this.teams){
+        team.pointsOfGame = 0;
+        for(let player of team.players){
+          for(let card of player.won){
+            team.pointsOfGame += gameValue(card)
+          }
+        }
+      }
+
+      console.log(this.teams)
+
+    }
+    const roundScore = () => {}
+  }
 }
 
 class Trick{
@@ -154,6 +205,7 @@ class Trick{
       }
       else{
         console.log('END OF ROUND!!!')
+        match.round.determineRoundWinner();
       }
 
     }

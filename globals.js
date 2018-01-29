@@ -54,9 +54,45 @@ const findIndexOfObjByParam = (array, param, value) => {
   }
   return -1;
 }
+
 const reorder = (data, index) => {
   return data.slice(index).concat(data.slice(0, index))
 };
+
+const gameValue = (value) => {
+  // console.log('cardValue',value)
+  const faceCards = [
+    {
+      value: 'A',
+      number: 4
+    }, {
+      value: 'K',
+      number: 3
+    }, {
+      value: 'Q',
+      number: 2
+    }, {
+      value: 'J',
+      number: 1
+    },
+    {
+      value: '10',
+      number: 10
+    }
+  ];
+
+  const numberCards = [2,3,4,5,6,7,8,9];
+
+  if(numberCards.includes(parseFloat(value))){
+    return 0;
+  }
+  else{
+    var number = faceCards.filter(function(card) {
+      return card.value == value;
+    });
+    return number[0].number;
+  }
+}
 
 // exports = {
 //   showHand: showHand
