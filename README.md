@@ -1,5 +1,5 @@
 # Chicopee Pitch
-I've got partners!
+I've got partners!!
 
 Modelling the card game [Pitch](https://www.pagat.com/allfours/pitch.html) ([aka High-Low-Jack, Setback](http://www.urbandictionary.com/define.php?term=Chicopee%20Pitch)) in Javascript.
 
